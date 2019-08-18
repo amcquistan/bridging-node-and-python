@@ -1,6 +1,6 @@
 # bridging-node-and-python
 
-This is a toy app to demo the functionality and use case for using the PyNode Node.js library to bridge calling Python code from within Node.js code.
+This is a toy app to demo the functionality and use case for using the PyNode Node.js library to bridge calling Python code from within Node.js code. The demo app is a Express.js Web App that uses PyNode to call Python code that uses SciKit Learn and its California Housing Dataset to make a linear regression model for predicting home prices based off the 1990 US Census data.
 
 ### Notes on Installing PyNode
 
@@ -36,4 +36,26 @@ npm WARN node2py@1.0.0 No repository field.
 
 + @fridgerator/pynode@0.2.7
 updated 1 package in 4.042s
+```
+
+### Running the Demo App
+
+1. Install PyNode as described in the above section
+
+2. Install Python dependencies (with Python virtual environment activated)
+
+```
+(venv) pip install -r requirements.txt
+```
+
+3. Install Node.js dependencies
+
+```
+(venv) npm install 
+```
+
+4. Run Node.js / Express.js app
+
+```
+(venv) node server.js # or nodemon
 ```
