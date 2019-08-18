@@ -16,6 +16,7 @@
 
       <div class="container" id="app">
         <h1 class="title has-text-centered">California Home Price Predictor</h1>
+        <h3 class="subtitle has-text-centered">Based off 1990 U.S. Census</h3>
   
         <div v-if="ready">
           <div class="columns">
@@ -62,7 +63,7 @@
                     <div class="control">
                       <input v-model="vars.AveRooms.value" type="number" :placeholder="vars.AveRooms.desc" class="input">
                     </div>
-                    <p class="help is-danger" v-if="validTotalRms">
+                    <p class="help is-danger" v-if="!validTotalRms">
                       Rooms must be positive
                     </p>
                   </div>
@@ -73,7 +74,7 @@
                     <div class="control">
                       <input v-model="vars.AveBedrms.value" type="number" placeholder="vars.AveBedrms.desc" class="input">
                     </div>
-                    <p class="help is-danger" v-if="validBedrms">
+                    <p class="help is-danger" v-if="!validBedrms">
                       Bedrooms must be positive
                     </p>
                   </div>
