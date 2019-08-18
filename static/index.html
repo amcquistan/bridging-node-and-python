@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/bulma-0.7.5/css/bulma.min.css">
+  <script src="js/vue.min.js"></script>
+  <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+  <script src="js/axios.min.js"></script>
+  <title>Housing Analyzer</title>
+</head>
+<body>
+  <body>
+    <div class="section">
+
+      <div class="container" id="app">
+        <h1 class="title has-text-centered">California Home Price Predictor</h1>
+  
+        <div v-if="ready">
+          <div class="columns">
+            <div class="column is-offset-4 is-4">
+              <div class="box">
+                <h2 class="title has-text-centered is-size-1">
+                  ${{prediction}}
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          <div class="columns">
+            <div class="column is-offset-2 is-8">
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Median Income</label>
+                    <div class="control">
+                      <input v-model="vars.MedInc.value" type="number" :placeholder="vars.MedInc.desc" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="!validIncome">
+                      Income must be positive
+                    </p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Age of Home</label>
+                    <div class="control">
+                      <input v-model="vars.HouseAge.value" type="number" :placeholder="vars.HouseAge.desc" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="!validHomeAge">
+                      Home age must be positive
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Total Rooms</label>
+                    <div class="control">
+                      <input v-model="vars.AveRooms.value" type="number" :placeholder="vars.AveRooms.desc" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="validTotalRms">
+                      Rooms must be positive
+                    </p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Bedrooms</label>
+                    <div class="control">
+                      <input v-model="vars.AveBedrms.value" type="number" placeholder="vars.AveBedrms.desc" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="validBedrms">
+                      Bedrooms must be positive
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Latitude</label>
+                    <div class="control">
+                      <input v-model="vars.Latitude.value" type="number" :placeholder="`${vars.Latitude.desc} (${vars.Latitude.min} - ${vars.Latitude.max})`" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="!validLat">
+                      Must be between {{vars.Latitude.min}} - {{vars.Latitude.max}}
+                    </p>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label for="" class="label">Longitude</label>
+                    <div class="control">
+                      <input v-model="vars.Longitude.value" type="number" :placeholder="`${vars.Longitude.desc} (${vars.Longitude.min} - ${vars.Longitude.max})`" class="input">
+                    </div>
+                    <p class="help is-danger" v-if="!validLong">
+                      Must be between {{vars.Longitude.min}} - {{vars.Longitude.max}}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="field-label">
+                  <!-- Left empty for spacing -->
+                </div>
+                <div class="field-body">
+                  <div class="field">
+                    <div class="control">
+                      <button @click="predictHomeValue" class="button is-primary" :disable="!canMakePrediction">
+                        Get Prediction
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          ready: false,
+          apiBaseURL: 'http://localhost:3000/api',
+          vars: {
+            MedInc: {},
+            HouseAge: {},
+            AveRooms: {},
+            AveBedrms: {},
+            Latitude: {},
+            Longitude: {}
+          },
+          target: {},
+          intercept: 0,
+          prediction: 0
+        },
+        methods: {
+          loadVariables() {
+            const self = this;
+            return axios.get(`${this.apiBaseURL}/house-price-model`)
+              .then(response => {
+                  console.log(response.data);
+                  const { indepVariables, intercept } = response.data;
+                  self.vars = indepVariables;
+                  self.intercept = intercept;
+                  self.ready = true;
+              });
+          },
+          predictHomeValue () {
+            this.prediction = Math.floor(Object.values(this.vars)
+                                  .filter(v => v.value)
+                                  .map(v => parseInt(v.value) * v.coef)
+                                  .reduce((acc, val) => acc + val));
+          },
+          parseToNumeric(value) {
+            try {
+              return parseFloat(value);
+            } catch(e) {
+              return 0.0;
+            }
+          }
+        },
+        computed: {
+          canMakePrediction () {
+            return this.validLat 
+              && this.validLong 
+              && this.validIncome 
+              && this.validTotalRms 
+              && this.validBedrms
+              && this.validHomeAge
+          },
+          validLat () {
+            const { value, min, max } = this.vars.Latitude;
+            const lat = this.parseToNumeric(value);
+            return lat >= min && lat <= max;
+          },
+          validLong () {
+            const { value, min, max } = this.vars.Longitude;
+            const long = this.parseToNumeric(value);
+            return long >= min && long <= max;
+          },
+          validIncome () {
+            return this.parseToNumeric(this.vars.MedInc.value) >= 0;
+          },
+          validTotalRms () {
+            return this.parseToNumeric(this.vars.AveRooms.value) >= 0;
+          },
+          validBedrms () {
+            return this.parseToNumeric(this.vars.AveBedrms.value) >= 0;
+          },
+          validHomeAge () {
+            return this.parseToNumeric(this.vars.HouseAge.value) >= 0;
+          }
+        },
+        beforeMount() {
+            return this.loadVariables()
+        }
+      })
+    </script>
+  </body>
+</body>
+</html>

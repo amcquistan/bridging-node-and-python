@@ -1,0 +1,5 @@
+
+const VariableField = {
+  props: ['variable'],
+  
+}
