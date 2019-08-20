@@ -2,3 +2,5 @@ __pycache__
 node_modules
 install_notes.txt
 venv
+yarn-error.log
+warn.lock
