@@ -1,3 +1,4 @@
+# housing_analyzer.py
 
 import numpy as np
 from sklearn.datasets import fetch_california_housing
@@ -12,7 +13,6 @@ class Variable:
         self.name = metadata[0]
         self.desc = ' '.join(metadata[1:]).strip()
         self.coef = py_float(regressor.coef_[idx], decimals=3) if regressor else None
-        # self.data = [py_float(x) for x in data]
         self.idx = idx
         self._min = py_float(np.min(data))
         self._max = py_float(np.max(data))
@@ -39,15 +39,19 @@ class Variable:
 
 def build_regression_model():
     cali_housing = fetch_california_housing()
-    metadata_lines = cali_housing.DESCR.split('\n')
+
+    select_columns = [0,1,2,3,6,7]
+
+    metadata_lines = [line for idx, line in enumerate(cali_housing.DESCR.split('\n')[12:20]) if idx in select_columns]
     
     regressor = LinearRegression()
-    regressor.fit(cali_housing.data, cali_housing.target)
-
+    data = cali_housing.data[:, select_columns]
+    regressor.fit(data, cali_housing.target)
+    
     indep_variables = {}
 
-    for idx, line in enumerate(metadata_lines[12:20]):
-        variable = Variable(line, cali_housing.data[:, idx], idx, regressor=regressor)
+    for idx, line in enumerate(metadata_lines):
+        variable = Variable(line, data[:, idx], idx, regressor=regressor)
         indep_variables[variable.name] = variable.to_dict()
 
     return {
@@ -55,3 +59,6 @@ def build_regression_model():
       'indepVariables':indep_variables,
       'depVariable':Variable('- ActualValues: the actual values of homes', cali_housing.target).to_dict()
     }
+
+def test_numpy():
+    return np.array([1,2,3])

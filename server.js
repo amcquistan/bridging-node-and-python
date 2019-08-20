@@ -8,7 +8,8 @@ const _ = require('lodash');
 pynode.startInterpreter();
 pynode.appendSysPath('./');
 
-// needed this to find numpy
+// needed this so the Python interpreter can find numpy and sklearn package 
+// imported at the top of housing_analyzer.py module
 pynode.appendSysPath('./venv/lib/python3.6/site-packages');
 pynode.openFile('housing_analyzer');
 
@@ -27,6 +28,7 @@ app.get('/api/house-price-model', (req, res) => {
         }
         resolve(regressionModel);
       } catch(err) {
+        console.log(err);
         reject('failed to load housing variables');
       }
   })

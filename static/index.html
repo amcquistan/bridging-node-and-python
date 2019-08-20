@@ -164,7 +164,7 @@
             this.prediction = Math.floor(Object.values(this.vars)
                                   .filter(v => v.value)
                                   .map(v => parseInt(v.value) * v.coef)
-                                  .reduce((acc, val) => acc + val));
+                                  .reduce((acc, val) => acc + val) + this.intercept);
           },
           parseToNumeric(value) {
             try {
